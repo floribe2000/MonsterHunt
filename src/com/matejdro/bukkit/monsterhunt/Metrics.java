@@ -209,7 +209,7 @@ public class Metrics {
         String data = encode("guid") + '=' + encode(guid)
                 + '&' + encode("version") + '=' + encode(plugin.getDescription().getVersion())
                 + '&' + encode("server") + '=' + encode(Bukkit.getVersion())
-                + '&' + encode("players") + '=' + encode(String.valueOf(Bukkit.getServer().getOnlinePlayers().length))
+                + '&' + encode("players") + '=' + encode(String.valueOf(Bukkit.getServer().getOnlinePlayers().size()))
                 + '&' + encode("revision") + '=' + encode(REVISION + "");
 
         // If we're pinging, append it

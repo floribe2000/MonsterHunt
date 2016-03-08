@@ -95,8 +95,10 @@ public class MonsterHuntListener implements Listener {
 					cause = "Snowball";
 				else
 					cause = "Arrow";
-				LivingEntity shooter = ((Projectile) event.getDamager()).getShooter();
-				if (shooter instanceof Player) player = (Player) shooter;
+				if (((Projectile)event.getDamager()).getShooter() instanceof LivingEntity){
+					LivingEntity shooter = (LivingEntity)((Projectile) event.getDamager()).getShooter();
+					if (shooter instanceof Player) player = (Player) shooter;
+				}		
 			}
 			else if (event.getDamager() instanceof Wolf && ((Wolf) event.getDamager()).isTamed())
 			{
