@@ -6,20 +6,20 @@ plugins {
 }
 
 repositories {
-    papermc {
-        content {
-            includeGroup("com.destroystokyo.paper")
-        }
-    }
-//    spigotmc()
+//    papermc {
+//        content {
+//           includeGroup("com.destroystokyo.paper")
+//        }
+//    }
+    spigotmc()
 //    sonatype()
     jitpack()
     mavenCentral()
 }
 
 dependencies {
-//    compileOnly(spigot("1.18.2-R0.1-SNAPSHOT"))
-    compileOnly(paper("1.18.2-R0.1-SNAPSHOT"))
+    compileOnly(spigot("1.18.2-R0.1-SNAPSHOT"))
+//    compileOnly(paper("1.18.2-R0.1-SNAPSHOT"))
     compileOnly(vaultAll()) {
         isTransitive = false
     }
