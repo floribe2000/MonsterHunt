@@ -1,10 +1,14 @@
 package com.matejdro.bukkit.monsterhunt.listeners;
 
+import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.type.Leaves;
 import org.bukkit.entity.Blaze;
 import org.bukkit.entity.CaveSpider;
 import org.bukkit.entity.Chicken;
@@ -106,10 +110,11 @@ public class MonsterHuntListener implements Listener {
             player = (Player) event.getDamager();
 
             if (cause.equals("General")) {
-                if (player.getItemInHand() == null)
+                if (player.getInventory().getItemInMainHand().getType() == Material.AIR) {
                     cause = String.valueOf(0);
-                else
-                    cause = String.valueOf(player.getItemInHand().getTypeId());
+                } else {
+                    cause = String.valueOf(player.getInventory().getItemInMainHand().getType());
+                }
             }
         }
 
@@ -120,8 +125,7 @@ public class MonsterHuntListener implements Listener {
         } else if (monster instanceof Spider) {
             points = world.settings.getMonsterValue("Spider", cause);
             name = "Spider";
-        } else if (monster instanceof Creeper) {
-            Creeper creeper = (Creeper) monster;
+        } else if (monster instanceof Creeper creeper) {
             if (creeper.isPowered()) {
                 points = world.settings.getMonsterValue("ElectrifiedCreeper", cause);
                 name = "Electrified Creeper";
@@ -207,7 +211,7 @@ public class MonsterHuntListener implements Listener {
         if (!world.Score.containsKey(player.getName()) && !world.settings.getBoolean(Setting.EnableSignup))
             world.Score.put(player.getName(), 0);
         if (world.Score.containsKey(player.getName())) {
-            if (!(world.settings.getBoolean(Setting.OnlyCountMobsSpawnedOutsideBlackList) ^ world.properlyspawned.contains(monster.getEntityId())) && world.settings.getBoolean(Setting.OnlyCountMobsSpawnedOutside)) {
+            if (!(world.settings.getBoolean(Setting.OnlyCountMobsSpawnedOutsideBlackList) ^ world.properlySpawned.contains(monster.getEntityId())) && world.settings.getBoolean(Setting.OnlyCountMobsSpawnedOutside)) {
                 String message = world.settings.getString(Setting.KillMobSpawnedInsideMessage);
                 Util.Message(message, player);
                 world.blacklist.add(monster.getEntityId());
@@ -242,7 +246,7 @@ public class MonsterHuntListener implements Listener {
             world.Score.put(player.getName(), newscore);
             world.blacklist.add(monster.getEntityId());
 
-            world.properlyspawned.remove((Object) monster.getEntityId());
+            world.properlySpawned.remove((Object) monster.getEntityId());
 
             String message = world.settings.getKillMessage(cause);
             message = message.replace("<MobValue>", String.valueOf(points));
@@ -252,55 +256,78 @@ public class MonsterHuntListener implements Listener {
         }
     }
 
-    @EventHandler()
+    private boolean isTreeBlock(Block block) {
+        return Arrays.stream(BlockFace.values())
+            .filter(BlockFace::isCartesian)
+            .map(block::getRelative)
+            .filter(secondBlock -> secondBlock.getBlockData() instanceof Leaves)
+            .map(secondBlock -> (Leaves)secondBlock)
+            .anyMatch(leave -> !leave.isPersistent());
+
+    //    return ((leavesAndAir.contains( block.getRelative(BlockFace.NORTH).getType()) || (block.getRelative(BlockFace.EAST).getType() == mat) ||
+    //        (block.getRelative(BlockFace.WEST).getType() == mat) || (block.getRelative(BlockFace.SOUTH).getType() == mat) ||
+    //        (block.getRelative(BlockFace.UP).getType() == mat) || (block.getRelative(BlockFace.DOWN).getType() == mat));
+
+    }
+
+    private final Set<Material> leaves = EnumSet.of(
+        Material.ACACIA_LEAVES,
+        Material.AZALEA_LEAVES,
+        Material.BIRCH_LEAVES,
+        Material.OAK_LEAVES,
+        Material.JUNGLE_LEAVES,
+        Material.DARK_OAK_LEAVES,
+        Material.FLOWERING_AZALEA_LEAVES,
+        Material.SPRUCE_LEAVES);
+
+    private final Set<Material> logMaterials = EnumSet.of(
+        Material.ACACIA_LOG,
+        Material.OAK_LOG,
+        Material.BIRCH_LOG,
+        Material.JUNGLE_LOG,
+        Material.DARK_OAK_LOG,
+        Material.SPRUCE_LOG);
+
+    private boolean isLeaveOrAir(Material material) {
+        return material.isAir() || leaves.contains(material);
+    }
+
+    @EventHandler
     public void onCreatureSpawn(CreatureSpawnEvent event) {
         if (event.getEntity() instanceof Creature) {
-            MonsterHuntWorld world = HuntWorldManager.getWorld(event.getLocation().getWorld().getName());
+            if (!event.getLocation().isWorldLoaded()) return;
+            @SuppressWarnings("ConstantConditions") MonsterHuntWorld world = HuntWorldManager.getWorld(event.getLocation().getWorld().getName());
             if (world == null || world.getWorld() == null) return;
             if (world.state == 0) return;
             if (!world.settings.getBoolean(Setting.OnlyCountMobsSpawnedOutside)) return;
             Block block = event.getLocation().getBlock();
-            int number = 0;
-            while (block.getY() < 125) {
-                number++;
+            int maxHeight = world.getWorld().getMaxHeight();
+            int huntHeightLimit = world.settings.getInt(Setting.OnlyCountMobsSpawnedOutsideHeightLimit);
+            if (huntHeightLimit > 0) {
+                maxHeight = huntHeightLimit;
+            }
+            while (block.getY() < maxHeight) { //checks all blocks over the mob doc!!!!
                 block = block.getRelative(BlockFace.UP);
-                Boolean empty = false;
-
-                if (block.getType() == Material.AIR || block.getType() == Material.LEAVES) empty = true;
-                else if (block.getType() == Material.LOG) {
-                    if (block.getRelative(BlockFace.NORTH).getType() == Material.AIR || block.getRelative(BlockFace.NORTH).getType() == Material.LEAVES)
-                        empty = true;
-                    else if (block.getRelative(BlockFace.EAST).getType() == Material.AIR || block.getRelative(BlockFace.EAST).getType() == Material.LEAVES)
-                        empty = true;
-                    else if (block.getRelative(BlockFace.WEST).getType() == Material.AIR || block.getRelative(BlockFace.WEST).getType() == Material.LEAVES)
-                        empty = true;
-                    else if (block.getRelative(BlockFace.SOUTH).getType() == Material.AIR || block.getRelative(BlockFace.SOUTH).getType() == Material.LEAVES)
-                        empty = true;
-                    else if (block.getRelative(BlockFace.UP).getType() == Material.AIR || block.getRelative(BlockFace.UP).getType() == Material.LEAVES)
-                        empty = true;
-                    else if (block.getRelative(BlockFace.DOWN).getType() == Material.AIR || block.getRelative(BlockFace.DOWN).getType() == Material.LEAVES)
-                        empty = true;
+                boolean isBlockUnderSky = isLeaveOrAir(block.getType());
+                if (!isBlockUnderSky && logMaterials.contains(block.getType())) {
+                    isBlockUnderSky = isTreeBlock(block);
                 }
 
-                if (!empty) {
-                    if (world.settings.getBoolean(Setting.OnlyCountMobsSpawnedOutsideBlackList))
-                        world.properlyspawned.add(event.getEntity().getEntityId());
+                if(!isBlockUnderSky && world.settings.getBoolean(Setting.OnlyCountMobsSpawnedOutsideBlackList)) {
+                    world.properlySpawned.add(event.getEntity().getEntityId());
                     return;
                 }
-                if (world.settings.getInt(Setting.OnlyCountMobsSpawnedOutsideHeightLimit) > 0 && world.settings.getInt(Setting.OnlyCountMobsSpawnedOutside) < number)
-                    break;
             }
-            if (!world.settings.getBoolean(Setting.OnlyCountMobsSpawnedOutsideBlackList))
-                world.properlyspawned.add(event.getEntity().getEntityId());
 
-
+            if (!world.settings.getBoolean(Setting.OnlyCountMobsSpawnedOutsideBlackList)) {
+                world.properlySpawned.add(event.getEntity().getEntityId());
+            }
         }
-
     }
 
     @EventHandler()
     public void onPlayerInteract(PlayerInteractEvent event) {
-        if (event.getAction() == Action.RIGHT_CLICK_BLOCK && event.getPlayer().getItemInHand().getTypeId() == Settings.globals.getInt(Setting.SelectionTool.getString(), 268)) {
+        if (event.getAction() == Action.RIGHT_CLICK_BLOCK && event.getPlayer().getInventory().getItemInMainHand().getType() == Setting.SelectionTool.getMaterial()) {
             if (HuntZoneCreation.players.containsKey(event.getPlayer().getName())) {
                 HuntZoneCreation.select(event.getPlayer(), event.getClickedBlock());
                 event.setCancelled(true);

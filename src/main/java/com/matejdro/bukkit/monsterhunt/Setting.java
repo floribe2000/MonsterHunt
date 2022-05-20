@@ -1,6 +1,8 @@
 package com.matejdro.bukkit.monsterhunt;
 
 
+import org.bukkit.Material;
+
 public enum Setting {
 
     StartTime("StartTime", 13000),
@@ -19,7 +21,7 @@ public enum Setting {
     OnlyCountMobsSpawnedOutsideBlackList("OnlyCountMobsSpawnedOutsideBlackList", true),
     SkipToIfFailsToStart("SkipToIfFailsToStart", -1),
     AnnounceLead("AnnounceLead", true),
-    SelectionTool("SelectionTool", 268),
+    SelectionTool("SelectionTool", Material.WOODEN_SWORD),
     HuntZoneMode("HuntZoneMode", false),
     AnnounceSignUp("AnnounceSignUp", true),
 
@@ -95,6 +97,14 @@ public enum Setting {
 
     public String getString() {
         return name;
+    }
+
+    public Material getMaterial() {
+        if (def instanceof Material) {
+            return (Material) def;
+        }
+
+        throw new IllegalStateException();
     }
 
     public Object getDefault() {

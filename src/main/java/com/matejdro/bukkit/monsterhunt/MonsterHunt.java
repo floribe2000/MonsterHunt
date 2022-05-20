@@ -8,6 +8,8 @@ import javax.swing.Timer;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.matejdro.bukkit.monsterhunt.commands.BaseCommand;
@@ -58,8 +60,6 @@ public class MonsterHunt extends JavaPlugin {
         commands.put("huntstatus", new HuntStatusCommand());
         commands.put("huntzone", new HuntZoneCommand());
         commands.put("hunttele", new HuntTeleCommand());
-
-        InputOutput.initMetrics();
 
         HuntWorldManager.timer();
 

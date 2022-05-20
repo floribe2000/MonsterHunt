@@ -340,7 +340,7 @@ public class RewardManager {
             economy = economyProvider.getProvider();
         }
 
-        return (economy != null);h
+        return (economy != null);
     }
 
 }

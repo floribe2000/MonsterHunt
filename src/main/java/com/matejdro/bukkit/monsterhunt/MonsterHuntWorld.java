@@ -13,7 +13,7 @@ import org.bukkit.entity.Player;
 public class MonsterHuntWorld {
     public String name;
 
-    public Boolean manual;
+    public boolean manual;
 
     public int state;
 
@@ -21,19 +21,17 @@ public class MonsterHuntWorld {
 
     public int curday;
 
-    public Boolean nextnight;
-
     public Settings settings;
 
-    public HashMap<String, Integer> Score = new HashMap<String, Integer>();
+    public HashMap<String, Integer> Score = new HashMap<>();
 
-    public HashMap<String, Integer> lastScore = new HashMap<String, Integer>();
+    public HashMap<String, Integer> lastScore = new HashMap<>();
 
-    public ArrayList<Integer> properlyspawned = new ArrayList<Integer>();
+    public ArrayList<Integer> properlySpawned = new ArrayList<>();
 
-    public ArrayList<Integer> blacklist = new ArrayList<Integer>();
+    public ArrayList<Integer> blacklist = new ArrayList<>();
 
-    public HashMap<Player, Location> tplocations = new HashMap<Player, Location>();
+    public HashMap<Player, Location> tpLocations = new HashMap<>();
 
     public MonsterHuntWorld(String w) {
         state = 0;
@@ -62,6 +60,9 @@ public class MonsterHuntWorld {
 
     }
 
+    /**
+     * its starts something //TODO find out what it does
+     */
     public void start() {
         String message = settings.getString(Setting.StartMessage);
         message = message.replace("<World>", name);
@@ -69,7 +70,9 @@ public class MonsterHuntWorld {
         state = 2;
         waitday = true;
     }
-
+    /**
+     * its stops something //TODO find out what it does
+     */
     public void stop() {
         if (state < 2) return;
         if (Score.size() < settings.getInt(Setting.MinimumPlayers)) {
@@ -79,7 +82,7 @@ public class MonsterHuntWorld {
         } else {
             RewardManager.rewardWinners(this);
         }
-        for (Entry<Player, Location> e : tplocations.entrySet()) {
+        for (Entry<Player, Location> e : tpLocations.entrySet()) {
             Player player = e.getKey();
             if (player == null || !player.isOnline()) continue;
             player.teleport(e.getValue());
@@ -102,7 +105,7 @@ public class MonsterHuntWorld {
 
         lastScore.putAll(Score);
         Score.clear();
-        properlyspawned.clear();
+        properlySpawned.clear();
     }
 
     public void skipNight() {

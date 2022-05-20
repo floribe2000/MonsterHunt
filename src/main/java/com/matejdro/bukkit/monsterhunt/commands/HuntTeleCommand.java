@@ -36,7 +36,7 @@ public class HuntTeleCommand extends BaseCommand {
             return true;
         }
 
-        world.tplocations.put(player, player.getLocation());
+        world.tpLocations.put(player, player.getLocation());
         player.teleport(HuntZone.teleport);
         return true;
     }

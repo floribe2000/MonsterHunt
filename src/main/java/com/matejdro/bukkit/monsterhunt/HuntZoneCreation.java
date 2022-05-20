@@ -8,33 +8,25 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 public class HuntZoneCreation {
-    public static HashMap<String, CreationPlayer> players = new HashMap<String, CreationPlayer>();
+    public static HashMap<String, CreationPlayer> players = new HashMap<>();
 
-
+    //DONE first fix
     public static void selectstart(Player player) {
-        if (players.containsKey(player.getName())) {
-            players.remove(player.getName());
-        }
-        if (!player.getInventory().contains(Settings.globals.getInt(Setting.SelectionTool.getString(), 268)))
-            player.getInventory().addItem(new ItemStack(Settings.globals.getInt(Setting.SelectionTool.getString(), 268), 1));
+        players.remove(player.getName());
+        if (!player.getInventory().contains(Setting.SelectionTool.getMaterial()))
+            player.getInventory().addItem(new ItemStack( Setting.SelectionTool.getMaterial(),1));
 
         Util.Message("§Hunt Zone Selection:", player);
         Util.Message("First, you must select hunt zone cuboid. Select first point of the cuboid by right clicking on the block with your wooden sword. DO NOT FORGET TO MARK FLOOR AND CEILING TOO!", player);
         players.put(player.getName(), new CreationPlayer());
     }
 
+
     public static void select(Player player, Block block) {
         switch (players.get(player.getName()).state) {
-            case 1:
-                firstpoint(player, block);
-                break;
-            case 2:
-                secondpoint(player, block);
-                break;
-            case 3:
-                telepoint(player);
-                break;
-
+            case 1 -> firstpoint(player, block);
+            case 2 -> secondpoint(player, block);
+            case 3 -> telepoint(player);
         }
     }
 

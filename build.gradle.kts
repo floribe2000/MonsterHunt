@@ -3,23 +3,18 @@ import kr.entree.spigradle.kotlin.*
 plugins {
     java
     id("kr.entree.spigradle") version "2.4.2"
+    idea
 }
 
 repositories {
-//    papermc {
-//        content {
-//           includeGroup("com.destroystokyo.paper")
-//        }
-//    }
     spigotmc()
-//    sonatype()
+    sonatype()
     jitpack()
     mavenCentral()
 }
 
 dependencies {
     compileOnly(spigot("1.18.2-R0.1-SNAPSHOT"))
-//    compileOnly(paper("1.18.2-R0.1-SNAPSHOT"))
     compileOnly(vaultAll()) {
         isTransitive = false
     }
