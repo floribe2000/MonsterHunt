@@ -77,7 +77,7 @@ public class MonsterHuntWorld {
             message = message.replace("<World>", name);
             Util.Broadcast(message);
         } else {
-            RewardManager.RewardWinners(this);
+            RewardManager.rewardWinners(this);
         }
         for (Entry<Player, Location> e : tplocations.entrySet()) {
             Player player = e.getKey();

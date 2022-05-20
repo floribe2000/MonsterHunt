@@ -22,9 +22,9 @@ public class RewardManager {
 
     public static Economy economy = null;
 
-    public static void RewardWinners(MonsterHuntWorld world) {
+    public static void rewardWinners(MonsterHuntWorld world) {
 
-        HashMap<String, Integer>[] Winners = GetWinners(world);
+        HashMap<String, Integer>[] Winners = getWinners(world);
         if (Winners[0].size() < 1) {
             String message = world.settings.getString(Setting.FinishMessageNotEnoughPlayers);
             message = message.replace("<World>", world.name);
@@ -55,7 +55,7 @@ public class RewardManager {
                     RewardString = world.settings.getPlaceString(Setting.RewardParametersPlace, place + 1);
                     if (RewardString.contains(";"))
                         RewardString = PickRandom(RewardString);
-                    Reward(i, RewardString, world, score);
+                    reward(i, RewardString, world, score);
                 }
             }
         }
@@ -70,7 +70,7 @@ public class RewardManager {
                 if (RewardString.contains(";"))
                     RewardString = PickRandom(RewardString);
                 if (world.settings.getBoolean(Setting.RewardEveryone) || (Util.permission(player, "monsterhunt.rewardeverytime", PermissionDefault.FALSE) && world.settings.getBoolean(Setting.EnableRewardEveryonePermission))) {
-                    Reward((String) i.getKey(), RewardString, world, (Integer) i.getValue());
+                    reward((String) i.getKey(), RewardString, world, (Integer) i.getValue());
                 }
             }
         }
@@ -103,8 +103,8 @@ public class RewardManager {
         Util.Broadcast(message);
     }
 
-    private static void Reward(String playerstring, String RewardString, MonsterHuntWorld world, int score) {
-        String[] split = RewardString.split(",");
+    private static void reward(String playerstring, String rewardString, MonsterHuntWorld world, int score) {
+        String[] split = rewardString.split(",");
         Player player = plugin.getServer().getPlayer(playerstring);
         if (player == null) return;
         String items = "";
@@ -113,12 +113,12 @@ public class RewardManager {
             //Parse block ID
             String BlockIdString = i2.substring(0, i2.indexOf(" "));
             short data;
-            int BlockId;
+            int blockId;
             if (BlockIdString.contains(":")) {
-                BlockId = Integer.valueOf(BlockIdString.substring(0, i2.indexOf(":")));
+                blockId = Integer.valueOf(BlockIdString.substring(0, i2.indexOf(":")));
                 data = Short.valueOf(BlockIdString.substring(i2.indexOf(":") + 1));
             } else {
-                BlockId = Integer.valueOf(BlockIdString);
+                blockId = Integer.valueOf(BlockIdString);
                 data = 0;
             }
 
@@ -151,14 +151,14 @@ public class RewardManager {
             int amount = (int) Math.round(number);
 
             //give reward
-            if (BlockId == 0) {
+            if (blockId == 0) {
                 String item = iConomyReward(playerstring, amount);
                 if (amount > 0) items += item + ", ";
 
             } else {
-                addItemFix(player, BlockId, amount, data);
+                addItemFix(player, blockId, amount, data);
                 if (amount > 0)
-                    items += String.valueOf(amount) + "x " + getMaterialName(Material.getMaterial(BlockId)) + ", ";
+                    items += String.valueOf(amount) + "x " + getMaterialName(Material.getMaterial(blockId)) + ", ";
                 //plugin.getServer().getPlayer(i).giveItem(BlockId,amount);
             }
         }
@@ -231,7 +231,7 @@ public class RewardManager {
 
     }
 
-    private static HashMap<String, Integer>[] GetWinners(MonsterHuntWorld world) {
+    private static HashMap<String, Integer>[] getWinners(MonsterHuntWorld world) {
         HashMap<String, Integer> scores = new HashMap<String, Integer>();
         scores.putAll(world.Score);
         int num = world.settings.getInt(Setting.NumberOfWinners);
@@ -340,7 +340,7 @@ public class RewardManager {
             economy = economyProvider.getProvider();
         }
 
-        return (economy != null);
+        return (economy != null);h
     }
 
 }
