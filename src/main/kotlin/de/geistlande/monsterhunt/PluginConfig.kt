@@ -10,6 +10,7 @@ data class PluginConfig(
     val defaultRewards: RewardSettings? = null,
     val dbSettings: DatabaseSettings = DatabaseSettings(),
     val locale: Locale = Locale.ENGLISH,
+    val debug: Boolean = false,
 )
 
 data class DatabaseSettings(

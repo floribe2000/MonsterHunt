@@ -26,7 +26,7 @@ public class HuntWorldManager {
                 if (world.state == 0 && time < world.worldSettings.getEndTime() && time > world.getSignUpPeriodTime() && world.getSignUpPeriodTime() > 0 && !world.manual && !world.waitday) {
                     if (world.canStart()) {
                         world.state = 1;
-                        String message = Localizer.INSTANCE.getString("signup.start", world.name);
+                        String message = Localizer.INSTANCE.getString("hunt.signup.start", world.name);
                         Util.Broadcast(message);
 
                     }
@@ -35,7 +35,7 @@ public class HuntWorldManager {
                 } else if (world.state < 2 && time > world.worldSettings.getStartTime() && time < world.worldSettings.getEndTime() && !world.manual) {
                     if (world.state == 1) {
                         if (world.Score.size() < world.worldSettings.getMinimumPlayers() && world.worldSettings.getEnableSignup()) {
-                            Util.Broadcast(Localizer.INSTANCE.getString("start.notEnoughPlayers"));
+                            Util.Broadcast(Localizer.INSTANCE.getString("hunt.start.notEnoughPlayers"));
                             world.state = 0;
                             world.Score.clear();
                             world.waitday = true;

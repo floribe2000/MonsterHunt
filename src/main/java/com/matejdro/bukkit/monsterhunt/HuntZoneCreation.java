@@ -2,6 +2,7 @@ package com.matejdro.bukkit.monsterhunt;
 
 import java.util.HashMap;
 
+import de.geistlande.monsterhunt.Settings;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -13,8 +14,8 @@ public class HuntZoneCreation {
     //DONE first fix
     public static void selectstart(Player player) {
         players.remove(player.getName());
-        if (!player.getInventory().contains(Setting.SelectionTool.getMaterial()))
-            player.getInventory().addItem(new ItemStack( Setting.SelectionTool.getMaterial(),1));
+        if (!player.getInventory().contains(Settings.INSTANCE.getConfig().getSelectionTool()))
+            player.getInventory().addItem(new ItemStack(Settings.INSTANCE.getConfig().getSelectionTool(),1));
 
         Util.Message("§Hunt Zone Selection:", player);
         Util.Message("First, you must select hunt zone cuboid. Select first point of the cuboid by right clicking on the block with your wooden sword. DO NOT FORGET TO MARK FLOOR AND CEILING TOO!", player);

@@ -9,14 +9,17 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.logging.Level;
 
+import de.geistlande.monsterhunt.Settings;
 import de.geistlande.monsterhunt.WorldSettings;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.EntityType;
 
 public class InputOutput {
     private static Connection connection;
@@ -38,7 +41,8 @@ public class InputOutput {
         try {
             if (SettingsOld.globals.getBoolean("Database.UseMySQL", false)) {
                 Class.forName("com.mysql.jdbc.Driver");
-                Connection ret = DriverManager.getConnection(SettingsOld.globals.getString("Database.MySQLConn", ""), SettingsOld.globals.getString("Database.MySQLUsername", ""), SettingsOld.globals.getString("Database.MySQLPassword", ""));
+                var dbSettings = Settings.INSTANCE.getConfig().getDbSettings();
+                Connection ret = DriverManager.getConnection(dbSettings.getConnectionString(), dbSettings.getDbUser(), dbSettings.getDbPassword());
                 ret.setAutoCommit(false);
                 return ret;
             } else {
@@ -47,10 +51,7 @@ public class InputOutput {
                 ret.setAutoCommit(false);
                 return ret;
             }
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            return null;
-        } catch (SQLException e) {
+        } catch (ClassNotFoundException | SQLException e) {
             e.printStackTrace();
             return null;
         }
@@ -87,7 +88,7 @@ public class InputOutput {
         Connection conn = getConnection();
         PreparedStatement ps = null;
         ResultSet set = null;
-        Boolean exist = false;
+        boolean exist = false;
         Integer counter = 0;
 
         try {
@@ -170,6 +171,7 @@ public class InputOutput {
     }
 
 
+    @Deprecated
     public static void LoadSettings() {
         if (!new File("plugins" + File.separator + "MonsterHunt").exists()) {
             try {

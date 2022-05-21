@@ -69,7 +69,7 @@ public class MonsterHuntWorld {
      * its starts something //TODO find out what it does
      */
     public void start() {
-        String message = Localizer.INSTANCE.getString("startMessage");
+        String message = Localizer.INSTANCE.getString("hunt.start");
         message = message.replace("<World>", name);
         Util.Broadcast(message);
         state = 2;
@@ -81,7 +81,7 @@ public class MonsterHuntWorld {
     public void stop() {
         if (state < 2) return;
         if (Score.size() < worldSettings.getMinimumPlayers()) {
-            String message = Localizer.INSTANCE.getString("finish.notEnoughPlayers", name);
+            String message = Localizer.INSTANCE.getString("hunt.finish.notEnoughPlayers", name);
             Util.Broadcast(message);
         } else {
             RewardManager.rewardWinners(this);
@@ -100,7 +100,7 @@ public class MonsterHuntWorld {
                 InputOutput.UpdateHighScore(i, score);
                 Player player = MonsterHunt.instance.getServer().getPlayer(i);
                 if (player != null) {
-                    String message = Localizer.INSTANCE.getString("newHighScore", score);
+                    String message = Localizer.INSTANCE.getString("personal.newHighScore", score);
                     Util.Message(message, player);
                 }
             }

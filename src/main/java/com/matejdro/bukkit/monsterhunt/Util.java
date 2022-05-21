@@ -2,6 +2,7 @@ package com.matejdro.bukkit.monsterhunt;
 
 import java.util.ArrayList;
 
+import de.geistlande.monsterhunt.Settings;
 import net.milkbowl.vault.permission.Permission;
 
 import org.bukkit.Bukkit;
@@ -33,21 +34,21 @@ public class Util {
         chat.add(0, "");
         String[] words = message.split(" ");
         int lineNumber = 0;
-        for (int i = 0; i < words.length; i++) {
-            if (chat.get(lineNumber).length() + words[i].length() < maxLength && !words[i].equals(newLine)) {
-                chat.set(lineNumber, chat.get(lineNumber) + (chat.get(lineNumber).length() > 0 ? " " : "§" + color) + words[i]);
+        for (String word : words) {
+            if (chat.get(lineNumber).length() + word.length() < maxLength && !word.equals(newLine)) {
+                chat.set(lineNumber, chat.get(lineNumber) + (chat.get(lineNumber).length() > 0 ? " " : "§" + color) + word);
 
-                if (words[i].contains("§")) color = Character.toString(words[i].charAt(words[i].indexOf("§") + 1));
+                if (word.contains("§")) color = Character.toString(word.charAt(word.indexOf("§") + 1));
             } else {
                 lineNumber++;
-                if (!words[i].equals(newLine)) {
-                    chat.add(lineNumber, "§" + color + words[i]);
+                if (!word.equals(newLine)) {
+                    chat.add(lineNumber, "§" + color + word);
                 } else
                     chat.add(lineNumber, "");
             }
         }
-        for (int i = 0; i < chat.size(); i++) {
-            player.sendMessage(chat.get(i));
+        for (String s : chat) {
+            player.sendMessage(s);
         }
     }
 
@@ -59,7 +60,7 @@ public class Util {
     }
 
     public static void Debug(String message) {
-        if (SettingsOld.globals.getBoolean(Setting.Debug.getString(), false))
+        if (Settings.INSTANCE.getConfig().getDebug())
             MonsterHunt.log.info("[MonsterHunt][Debug]" + message);
     }
 

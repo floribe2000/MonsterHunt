@@ -1,5 +1,6 @@
 package com.matejdro.bukkit.monsterhunt.commands;
 
+import de.geistlande.monsterhunt.Localizer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionDefault;
@@ -29,10 +30,10 @@ public class HuntTeleCommand extends BaseCommand {
         boolean permission = !Util.permission(player, "monsterhunt.noteleportrestrictions", PermissionDefault.OP);
 
         if (world.state == 0 && permission) {
-            Util.Message(world.worldSettings.getString(Setting.MessageHuntTeleNoHunt), player);
+            Util.Message(Localizer.INSTANCE.getString("hunt.zone.tp.noHunt"), player);
             return true;
         } else if (world.Score.containsKey(player.getName()) && world.worldSettings.getEnableSignup() && permission) {
-            Util.Message(world.worldSettings.getString(Setting.MessageHuntTeleNotSignedUp), player);
+            Util.Message(Localizer.INSTANCE.getString("hunt.zone.tp.noSignup"), player);
             return true;
         }
 

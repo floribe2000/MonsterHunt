@@ -5,9 +5,7 @@ import java.util.Map.Entry;
 import java.util.logging.Level;
 
 import de.geistlande.monsterhunt.Localizer;
-import de.geistlande.monsterhunt.MaterialReward;
 import de.geistlande.monsterhunt.RewardGroup;
-import de.geistlande.monsterhunt.WorldSettings;
 import net.milkbowl.vault.economy.Economy;
 
 import org.bukkit.Bukkit;
@@ -29,7 +27,7 @@ public class RewardManager {
         HashMap<String, Integer>[] Winners = getWinners(world);
         if (Winners[0].size() < 1) {
 
-            String message = Localizer.INSTANCE.getString("finish.notEnoughPlayers", world.name);
+            String message = Localizer.INSTANCE.getString("hunt.finish.notEnoughPlayers", world.name);
             Util.Broadcast(message);
             return;
         }
@@ -83,7 +81,7 @@ public class RewardManager {
 
 
 
-        message = Localizer.INSTANCE.getString("finish.winners", world.name);
+        message = Localizer.INSTANCE.getString("hunt.finish.winners", world.name);
 
         var messageParams = new ArrayList<>();
 
@@ -181,7 +179,7 @@ public class RewardManager {
         }
         if (items.trim() == "") return;
         items = items.substring(0, items.length() - 2);
-        String message = Localizer.INSTANCE.getString("rewardMessage", items);
+        String message = Localizer.INSTANCE.getString("personal.rewards.received", items);
         Util.Message(message, player);
     }
 
