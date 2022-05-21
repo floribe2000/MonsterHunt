@@ -3,6 +3,7 @@ package com.matejdro.bukkit.monsterhunt;
 
 import org.bukkit.Material;
 
+@Deprecated
 public enum Setting {
 
     StartTime("StartTime", 13000),

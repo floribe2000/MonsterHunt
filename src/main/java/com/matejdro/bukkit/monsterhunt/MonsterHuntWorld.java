@@ -6,6 +6,8 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.logging.Level;
 
+import de.geistlande.monsterhunt.Localizer;
+import de.geistlande.monsterhunt.WorldSettings;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -21,7 +23,9 @@ public class MonsterHuntWorld {
 
     public int curday;
 
-    public Settings settings;
+    //public SettingsOld settings;
+
+    public WorldSettings worldSettings;
 
     public HashMap<String, Integer> Score = new HashMap<>();
 
@@ -33,12 +37,13 @@ public class MonsterHuntWorld {
 
     public HashMap<Player, Location> tpLocations = new HashMap<>();
 
-    public MonsterHuntWorld(String w) {
+    public MonsterHuntWorld(String worldName, WorldSettings worldSettings) {
         state = 0;
         waitday = false;
         manual = false;
         curday = 0;
-        name = w;
+        name = worldName;
+        this.worldSettings = worldSettings;
     }
 
     public World getWorld() {
@@ -46,9 +51,9 @@ public class MonsterHuntWorld {
     }
 
     public int getSignUpPeriodTime() {
-        int time = settings.getInt(Setting.SignUpPeriodTime);
+        int time = worldSettings.getSignupPeriodTime();
         if (time != 0) {
-            time = settings.getInt(Setting.StartTime) - settings.getInt(Setting.SignUpPeriodTime) * 1200;
+            time = worldSettings.getStartTime() - worldSettings.getSignupPeriodTime() * 1200;
             if (time < 0) {
                 MonsterHunt.log.log(Level.WARNING, "[MonterHunt] Wrong SignUpPeriodTime Configuration! Sign Up period will be disabled!");
                 time = 0;
@@ -64,7 +69,7 @@ public class MonsterHuntWorld {
      * its starts something //TODO find out what it does
      */
     public void start() {
-        String message = settings.getString(Setting.StartMessage);
+        String message = Localizer.INSTANCE.getString("startMessage");
         message = message.replace("<World>", name);
         Util.Broadcast(message);
         state = 2;
@@ -75,9 +80,8 @@ public class MonsterHuntWorld {
      */
     public void stop() {
         if (state < 2) return;
-        if (Score.size() < settings.getInt(Setting.MinimumPlayers)) {
-            String message = settings.getString(Setting.FinishMessageNotEnoughPlayers);
-            message = message.replace("<World>", name);
+        if (Score.size() < worldSettings.getMinimumPlayers()) {
+            String message = Localizer.INSTANCE.getString("finish.notEnoughPlayers", name);
             Util.Broadcast(message);
         } else {
             RewardManager.rewardWinners(this);
@@ -96,8 +100,7 @@ public class MonsterHuntWorld {
                 InputOutput.UpdateHighScore(i, score);
                 Player player = MonsterHunt.instance.getServer().getPlayer(i);
                 if (player != null) {
-                    String message = settings.getString(Setting.HighScoreMessage);
-                    message = message.replace("<Points>", String.valueOf(score));
+                    String message = Localizer.INSTANCE.getString("newHighScore", score);
                     Util.Message(message, player);
                 }
             }
@@ -109,18 +112,15 @@ public class MonsterHuntWorld {
     }
 
     public void skipNight() {
-        if (settings.getInt(Setting.SkipToIfFailsToStart) >= 0) {
-            getWorld().setTime(settings.getInt(Setting.SkipToIfFailsToStart));
+        if (worldSettings.getSkipToIfFailsToStart() >= 0) {
+            getWorld().setTime(worldSettings.getSkipToIfFailsToStart());
         }
     }
 
     public Boolean canStart() {
         if (curday == 0) {
-            curday = settings.getInt(Setting.SkipDays);
-            if ((new Random().nextInt(100)) < settings.getInt(Setting.StartChance)) {
-                return true;
-            }
-
+            curday = worldSettings.getSkipDays();
+            return (new Random().nextInt(100)) < worldSettings.getStartChance();
         } else {
             curday--;
         }

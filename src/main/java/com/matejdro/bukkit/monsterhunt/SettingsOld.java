@@ -7,12 +7,13 @@ import java.io.IOException;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-public class Settings {
+@Deprecated
+public class SettingsOld {
     public static YamlConfiguration globals;
 
     private YamlConfiguration config;
 
-    public Settings(YamlConfiguration cfg, File file) {
+    public SettingsOld(YamlConfiguration cfg, File file) {
         config = cfg;
         try {
             config.load(file);

@@ -5,7 +5,7 @@ import org.bukkit.command.CommandSender;
 import com.matejdro.bukkit.monsterhunt.HuntWorldManager;
 import com.matejdro.bukkit.monsterhunt.MonsterHuntWorld;
 import com.matejdro.bukkit.monsterhunt.Setting;
-import com.matejdro.bukkit.monsterhunt.Settings;
+import com.matejdro.bukkit.monsterhunt.SettingsOld;
 import com.matejdro.bukkit.monsterhunt.Util;
 
 public class HuntStopCommand extends BaseCommand {
@@ -18,7 +18,7 @@ public class HuntStopCommand extends BaseCommand {
 
 
     public Boolean run(CommandSender sender, String[] args) {
-        if (args.length < 1 && Settings.globals.getBoolean(Setting.HuntZoneMode.getString(), false)) {
+        if (args.length < 1 && SettingsOld.globals.getBoolean(Setting.HuntZoneMode.getString(), false)) {
             args = new String[]{"something"};
         } else if (args.length < 1) {
             Util.Message("Usage: /huntstop [World Name]", sender);

@@ -1,11 +1,14 @@
 package com.matejdro.bukkit.monsterhunt;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.Timer;
 
+import de.geistlande.monsterhunt.Settings;
+import de.geistlande.monsterhunt.WorldSettings;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -27,13 +30,9 @@ public class MonsterHunt extends JavaPlugin {
 
     private MonsterHuntListener entityListener;
 
-    Timer timer;
-
-    //public static HashMap<String,Integer> highscore = new HashMap<String,Integer>();
-
     public static MonsterHunt instance;
 
-    private HashMap<String, BaseCommand> commands = new HashMap<String, BaseCommand>();
+    private HashMap<String, BaseCommand> commands = new HashMap<>();
 
     @Override
     public void onDisable() {
@@ -44,6 +43,7 @@ public class MonsterHunt extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        Settings.INSTANCE.load(getDataFolder().getAbsolutePath());
         initialize();
 
         InputOutput.LoadSettings();
@@ -68,7 +68,10 @@ public class MonsterHunt extends JavaPlugin {
     private void initialize() {
         entityListener = new MonsterHuntListener();
         instance = this;
-
+        for (Map.Entry<String, WorldSettings> entry : Settings.INSTANCE.getConfig().getWorldSettings().entrySet()) {
+            MonsterHuntWorld monsterHuntWorld = new MonsterHuntWorld(entry.getKey(), entry.getValue());
+            HuntWorldManager.worlds.put(entry.getKey(), monsterHuntWorld);
+        }
     }
 
     public boolean onCommand(CommandSender sender, Command command, String commandLabel, String[] args) {

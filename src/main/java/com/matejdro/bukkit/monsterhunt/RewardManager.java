@@ -1,11 +1,13 @@
 package com.matejdro.bukkit.monsterhunt;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Random;
 import java.util.logging.Level;
 
+import de.geistlande.monsterhunt.Localizer;
+import de.geistlande.monsterhunt.MaterialReward;
+import de.geistlande.monsterhunt.RewardGroup;
+import de.geistlande.monsterhunt.WorldSettings;
 import net.milkbowl.vault.economy.Economy;
 
 import org.bukkit.Bukkit;
@@ -26,16 +28,17 @@ public class RewardManager {
 
         HashMap<String, Integer>[] Winners = getWinners(world);
         if (Winners[0].size() < 1) {
-            String message = world.settings.getString(Setting.FinishMessageNotEnoughPlayers);
+
+            String message = world.worldSettings.getString(Setting.FinishMessageNotEnoughPlayers);
             message = message.replace("<World>", world.name);
             Util.Broadcast(message);
             return;
         }
-        int num = world.settings.getInt(Setting.NumberOfWinners);
+        int num = world.worldSettings.getRewardSettings().getNumberOfWinners();
 
         int score = Winners[0].get(Winners[0].keySet().toArray()[0]);
-        if (score < world.settings.getPlaceInt(Setting.MinimumPointsPlace, 1)) {
-            String message = world.settings.getString(Setting.FinishMessageNotEnoughPoints);
+        if (score < world.worldSettings.getRewardSettings().getMinimumPointsPlace()) {
+            String message = world.worldSettings.getString(Setting.FinishMessageNotEnoughPoints);
             message = message.replace("<World>", world.name);
             Util.Broadcast(message);
             return;
@@ -44,15 +47,15 @@ public class RewardManager {
         String RewardString;
 
         //Normal reward
-        if (world.settings.getBoolean(Setting.EnableReward)) {
+        if (world.worldSettings.getRewardSettings().getEnabled()) {
             for (int place = 0; place < num; place++) {
                 if (Winners[place].size() < 1) continue;
                 score = Winners[place].get(Winners[place].keySet().toArray()[0]);
                 Util.Debug(String.valueOf(score));
-                Util.Debug(String.valueOf(world.settings.getPlaceInt(Setting.MinimumPointsPlace, place + 1)));
-                if (score < world.settings.getPlaceInt(Setting.MinimumPointsPlace, place + 1)) Winners[place].clear();
+                Util.Debug(String.valueOf(world.worldSettings.getPlaceInt(Setting.MinimumPointsPlace, place + 1)));
+                if (score < world.worldSettings.getPlaceInt(Setting.MinimumPointsPlace, place + 1)) Winners[place].clear();
                 for (String i : Winners[place].keySet()) {
-                    RewardString = world.settings.getPlaceString(Setting.RewardParametersPlace, place + 1);
+                    RewardString = world.worldSettings.getPlaceString(Setting.RewardParametersPlace, place + 1);
                     if (RewardString.contains(";"))
                         RewardString = PickRandom(RewardString);
                     reward(i, RewardString, world, score);
@@ -61,15 +64,15 @@ public class RewardManager {
         }
 
         //RewardEveryone
-        if (!(!world.settings.getBoolean(Setting.EnableRewardEveryonePermission) && !world.settings.getBoolean(Setting.RewardEveryone))) {
+        if (!(!world.worldSettings.getRewardSettings().getEnableRewardEveryonePermission() && !world.worldSettings.getRewardSettings().getRewardEveryone())) {
             for (Entry i : world.Score.entrySet()) {
-                if (((Integer) i.getValue()) < world.settings.getInt(Setting.MinimumPointsEveryone)) continue;
+                if (((Integer) i.getValue()) < world.worldSettings.getRewardSettings().getMinimumPointsEveryone()) continue;
                 Player player = plugin.getServer().getPlayer((String) i.getKey());
                 if (player == null) continue;
-                RewardString = world.settings.getString(Setting.RewardParametersEveryone);
+                RewardString = world.worldSettings.getRewardSettings().getRewardParametersEveryone();
                 if (RewardString.contains(";"))
                     RewardString = PickRandom(RewardString);
-                if (world.settings.getBoolean(Setting.RewardEveryone) || (Util.permission(player, "monsterhunt.rewardeverytime", PermissionDefault.FALSE) && world.settings.getBoolean(Setting.EnableRewardEveryonePermission))) {
+                if (world.worldSettings.getBoolean(Setting.RewardEveryone) || (Util.permission(player, "monsterhunt.rewardeverytime", PermissionDefault.FALSE) && world.worldSettings.getBoolean(Setting.EnableRewardEveryonePermission))) {
                     reward((String) i.getKey(), RewardString, world, (Integer) i.getValue());
                 }
             }
@@ -79,10 +82,13 @@ public class RewardManager {
         Util.Debug("[MonterHunt][DEBUG - NEVEREND]Broadcasting Winners");
         String message;
 
-        message = world.settings.getString(Setting.FinishMessageWinners);
-        message = message.replace("<World>", world.name);
 
-        for (int place = 0; place < num; place++) {
+
+        message = Localizer.INSTANCE.getString("finish.winners", world.name);
+
+        var messageParams = new ArrayList<>();
+
+        for (int place = 0; place < maximum; place++) {
             String players = "";
             if (Winners[place].size() < 1) {
                 players = "Nobody";
@@ -103,17 +109,29 @@ public class RewardManager {
         Util.Broadcast(message);
     }
 
-    private static void reward(String playerstring, String rewardString, MonsterHuntWorld world, int score) {
-        String[] split = rewardString.split(",");
+    private static void reward(String playerstring, MonsterHuntWorld world, int score) {
+        List<RewardGroup> rewardGroups = world.worldSettings.getRewardSettings().getAvailableRewards();
+
+
+
+        //String[] split = rewardString.split(",");
         Player player = plugin.getServer().getPlayer(playerstring);
         if (player == null) return;
         String items = "";
-        for (String i2 : split) {
-            Util.Debug(i2);
+        for (RewardGroup i2 : rewardGroups) {
+            Util.Debug(i2.getName()); //TODO hoffen, dass es im log sinn macht,
+
+            //////
+
             //Parse block ID
-            String BlockIdString = i2.substring(0, i2.indexOf(" "));
+            //String BlockIdString = i2.substring(0, i2.indexOf(" "));
+
+
+
             short data;
-            int blockId;
+
+            Material blockId;
+
             if (BlockIdString.contains(":")) {
                 blockId = Integer.valueOf(BlockIdString.substring(0, i2.indexOf(":")));
                 data = Short.valueOf(BlockIdString.substring(i2.indexOf(":") + 1));
@@ -163,7 +181,7 @@ public class RewardManager {
             }
         }
         if (items.trim() == "") return;
-        String message = world.settings.getString(Setting.RewardMessage);
+        String message = world.worldSettings.getString(Setting.RewardMessage);
         items = items.substring(0, items.length() - 2);
         message = message.replace("<Items>", items);
         Util.Message(message, player);
@@ -234,7 +252,7 @@ public class RewardManager {
     private static HashMap<String, Integer>[] getWinners(MonsterHuntWorld world) {
         HashMap<String, Integer> scores = new HashMap<String, Integer>();
         scores.putAll(world.Score);
-        int num = world.settings.getInt(Setting.NumberOfWinners);
+        int num = world.worldSettings.getInt(Setting.NumberOfWinners);
         HashMap<String, Integer>[] winners = new HashMap[num];
         for (int place = 0; place < num; place++) {
             winners[place] = new HashMap<String, Integer>();
@@ -259,7 +277,7 @@ public class RewardManager {
     }
 
     // Material name snippet by TechGuard
-    public static String getMaterialName(Material material) {
+    private static String getMaterialName(Material material) {
         String name = material.toString();
         name = name.replaceAll("_", " ");
         if (name.contains(" ")) {
@@ -279,7 +297,7 @@ public class RewardManager {
     }
 
     //add item color by fabe
-    public static void addItemFix(Player players, int ID, int amount, short dur) {
+    private static void addItemFix(Player players, int ID, int amount, short dur) {
         if (players.getInventory().firstEmpty() == -1) {
             players.getLocation().getWorld().dropItem(players.getLocation(), new ItemStack(ID, amount, dur));
             return;

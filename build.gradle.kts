@@ -1,8 +1,10 @@
 import kr.entree.spigradle.kotlin.*
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     java
     id("kr.entree.spigradle") version "2.4.2"
+    kotlin("jvm") version "1.6.21"
     idea
 }
 
@@ -18,6 +20,18 @@ dependencies {
     compileOnly(vaultAll()) {
         isTransitive = false
     }
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.3")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.3")
+    testImplementation(kotlin("test-junit5"))
+    testImplementation(spigot("1.18.2-R0.1-SNAPSHOT"))
+}
+
+tasks.withType<KotlinCompile> {
+    kotlinOptions.jvmTarget = "17"
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
 
 spigot {
