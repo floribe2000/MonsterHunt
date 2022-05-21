@@ -20,7 +20,7 @@ public class HuntStatusCommand extends BaseCommand {
 
     public Boolean run(CommandSender sender, String[] args) {
         Player player = (Player) sender;
-        Boolean anyactive = false;
+        boolean anyactive = false;
         String actives = "";
         for (MonsterHuntWorld world : HuntWorldManager.getWorlds()) {
             if (world.state > 0) {
@@ -49,10 +49,10 @@ public class HuntStatusCommand extends BaseCommand {
                 else
                     Util.Message(world.worldSettings.getString(Setting.MessageHuntStatusCurrentScore).replace("<Points>", String.valueOf(world.Score.get(player.getName()))), player);
             }
-            if (world.worldSettings.getBoolean(Setting.TellTime) && !world.manual) {
-                int timediff = world.worldSettings.getInt(Setting.EndTime) - world.worldSettings.getInt(Setting.StartTime);
+            if (world.worldSettings.getTellTime() && !world.manual) {
+                int timediff = world.worldSettings.getEndTime() - world.worldSettings.getStartTime();
                 long time = player.getWorld().getTime();
-                long curdiff = (time - world.worldSettings.getInt(Setting.StartTime)) * 100;
+                long curdiff = (time - world.worldSettings.getStartTime()) * 100;
                 double calc = curdiff / timediff;
                 int curpercent = (int) (100 - Math.round(calc));
                 curpercent += 100;

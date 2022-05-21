@@ -29,8 +29,7 @@ public class RewardManager {
         HashMap<String, Integer>[] Winners = getWinners(world);
         if (Winners[0].size() < 1) {
 
-            String message = world.worldSettings.getString(Setting.FinishMessageNotEnoughPlayers);
-            message = message.replace("<World>", world.name);
+            String message = Localizer.INSTANCE.getString("finish.notEnoughPlayers", world.name);
             Util.Broadcast(message);
             return;
         }
@@ -72,7 +71,7 @@ public class RewardManager {
                 RewardString = world.worldSettings.getRewardSettings().getRewardParametersEveryone();
                 if (RewardString.contains(";"))
                     RewardString = PickRandom(RewardString);
-                if (world.worldSettings.getBoolean(Setting.RewardEveryone) || (Util.permission(player, "monsterhunt.rewardeverytime", PermissionDefault.FALSE) && world.worldSettings.getBoolean(Setting.EnableRewardEveryonePermission))) {
+                if (world.worldSettings.getRewardSettings().getRewardEveryone() || (Util.permission(player, "monsterhunt.rewardeverytime", PermissionDefault.FALSE) && world.worldSettings.getRewardSettings().getEnableRewardEveryonePermission())) {
                     reward((String) i.getKey(), RewardString, world, (Integer) i.getValue());
                 }
             }
@@ -88,7 +87,7 @@ public class RewardManager {
 
         var messageParams = new ArrayList<>();
 
-        for (int place = 0; place < maximum; place++) {
+        for (int place = 0; place < num; place++) {
             String players = "";
             if (Winners[place].size() < 1) {
                 players = "Nobody";
@@ -101,8 +100,8 @@ public class RewardManager {
                 players = players.substring(0, players.length() - 2);
             }
 
-            message = message.replace("<NamesPlace" + String.valueOf(place + 1) + ">", players);
-            message = message.replace("<PointsPlace" + String.valueOf(place + 1) + ">", String.valueOf(score));
+            message = message.replace("<NamesPlace" + (place + 1) + ">", players);
+            message = message.replace("<PointsPlace" + (place + 1) + ">", String.valueOf(score));
 
 
         }
@@ -143,17 +142,17 @@ public class RewardManager {
 
             //Parse block amount
             String rv = i2.substring(i2.indexOf(" ") + 1);
-            Boolean RelativeReward = false;
+            boolean RelativeReward = false;
             if (rv.startsWith("R")) {
                 RelativeReward = true;
                 rv = rv.substring(1);
             }
             int StartValue, EndValue;
             if (rv.contains("-")) {
-                StartValue = (int) Math.round(Double.valueOf(rv.substring(0, rv.indexOf("-"))) * 100.0);
-                EndValue = (int) Math.round(Double.valueOf(rv.substring(rv.indexOf("-") + 1)) * 100.0);
+                StartValue = (int) Math.round(Double.parseDouble(rv.substring(0, rv.indexOf("-"))) * 100.0);
+                EndValue = (int) Math.round(Double.parseDouble(rv.substring(rv.indexOf("-") + 1)) * 100.0);
             } else {
-                StartValue = (int) Math.round(Double.valueOf(rv) * 100.0);
+                StartValue = (int) Math.round(Double.parseDouble(rv) * 100.0);
                 EndValue = StartValue;
 
             }
@@ -181,12 +180,9 @@ public class RewardManager {
             }
         }
         if (items.trim() == "") return;
-        String message = world.worldSettings.getString(Setting.RewardMessage);
         items = items.substring(0, items.length() - 2);
-        message = message.replace("<Items>", items);
+        String message = Localizer.INSTANCE.getString("rewardMessage", items);
         Util.Message(message, player);
-
-
     }
 
     private static String iConomyReward(String player, int number) {
@@ -211,7 +207,7 @@ public class RewardManager {
         int totalchances = 0, numnochances = 0;
         for (int i = 0; i < split.length; i++) {
             if (split[i].startsWith(":")) {
-                chances[i] = Integer.valueOf(split[i].substring(1, split[i].indexOf(" ")));
+                chances[i] = Integer.parseInt(split[i].substring(1, split[i].indexOf(" ")));
                 split[i] = split[i].substring(split[i].indexOf(" ") + 1);
                 totalchances += chances[i];
             } else {
@@ -250,12 +246,11 @@ public class RewardManager {
     }
 
     private static HashMap<String, Integer>[] getWinners(MonsterHuntWorld world) {
-        HashMap<String, Integer> scores = new HashMap<String, Integer>();
-        scores.putAll(world.Score);
-        int num = world.worldSettings.getInt(Setting.NumberOfWinners);
+        HashMap<String, Integer> scores = new HashMap<>(world.Score);
+        int num = world.worldSettings.getRewardSettings().getNumberOfWinners();
         HashMap<String, Integer>[] winners = new HashMap[num];
         for (int place = 0; place < num; place++) {
-            winners[place] = new HashMap<String, Integer>();
+            winners[place] = new HashMap<>();
             int tmp = 0;
             for (String i : scores.keySet()) {
                 int value = scores.get(i);

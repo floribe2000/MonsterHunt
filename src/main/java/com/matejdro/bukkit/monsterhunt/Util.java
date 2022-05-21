@@ -64,8 +64,8 @@ public class Util {
     }
 
     public void StartFailed(MonsterHuntWorld world) {
-        if (world.worldSettings.getInt(Setting.SkipToIfFailsToStart) >= 0) {
-            world.getWorld().setTime(world.worldSettings.getInt(Setting.SkipToIfFailsToStart));
+        if (world.worldSettings.getSkipToIfFailsToStart() >= 0) {
+            world.getWorld().setTime(world.worldSettings.getSkipToIfFailsToStart());
         }
     }
 

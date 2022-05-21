@@ -15,13 +15,17 @@ repositories {
     mavenCentral()
 }
 
+val jacksonVersion = "2.13.3"
+val jacksonYaml = "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:$jacksonVersion"
+val jacksonKotlin = "com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion"
+
 dependencies {
     compileOnly(spigot("1.18.2-R0.1-SNAPSHOT"))
     compileOnly(vaultAll()) {
         isTransitive = false
     }
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.3")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.3")
+    implementation(jacksonYaml)
+    implementation(jacksonKotlin)
     testImplementation(kotlin("test-junit5"))
     testImplementation(spigot("1.18.2-R0.1-SNAPSHOT"))
 }
@@ -38,6 +42,7 @@ spigot {
     name = "Monsterhunt"
     softDepends("Vault")
     version = "1.5.1"
+    libraries = listOf(jacksonYaml, jacksonKotlin)
     commands {
         create("hunt") {
             description = "Sign up for the hunt"

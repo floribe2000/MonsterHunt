@@ -46,7 +46,6 @@ public class MonsterHunt extends JavaPlugin {
         Settings.INSTANCE.load(getDataFolder().getAbsolutePath());
         initialize();
 
-        InputOutput.LoadSettings();
         InputOutput.PrepareDB();
 
 

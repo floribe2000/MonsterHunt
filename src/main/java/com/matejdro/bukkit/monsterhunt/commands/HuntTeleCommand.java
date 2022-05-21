@@ -26,12 +26,12 @@ public class HuntTeleCommand extends BaseCommand {
         if (!SettingsOld.globals.getBoolean(Setting.HuntZoneMode.getString(), false) || world == null || world.getWorld() == null)
             return false;
 
-        Boolean permission = !Util.permission(player, "monsterhunt.noteleportrestrictions", PermissionDefault.OP);
+        boolean permission = !Util.permission(player, "monsterhunt.noteleportrestrictions", PermissionDefault.OP);
 
         if (world.state == 0 && permission) {
             Util.Message(world.worldSettings.getString(Setting.MessageHuntTeleNoHunt), player);
             return true;
-        } else if (world.Score.containsKey(player.getName()) && world.worldSettings.getBoolean(Setting.EnableSignup) && permission) {
+        } else if (world.Score.containsKey(player.getName()) && world.worldSettings.getEnableSignup() && permission) {
             Util.Message(world.worldSettings.getString(Setting.MessageHuntTeleNotSignedUp), player);
             return true;
         }

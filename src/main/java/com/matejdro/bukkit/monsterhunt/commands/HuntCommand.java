@@ -26,7 +26,7 @@ public class HuntCommand extends BaseCommand {
         }
 
         if (world.state < 2) {
-            if (world.worldSettings.getBoolean(Setting.AnnounceSignUp)) {
+            if (world.worldSettings.getAnnounceSignup()) {
                 String message = world.worldSettings.getString(Setting.SignUpAnnouncement);
                 message = message.replace("<World>", world.name);
                 message = message.replace("<Player>", ((Player) sender).getName());
@@ -39,8 +39,8 @@ public class HuntCommand extends BaseCommand {
 
             world.Score.put(((Player) sender).getName(), 0);
 
-        } else if (world.state == 2 && (world.getSignUpPeriodTime() == 0 || world.worldSettings.getBoolean(Setting.AllowSignUpAfterStart))) {
-            if (world.worldSettings.getBoolean(Setting.AnnounceSignUp)) {
+        } else if (world.state == 2 && (world.getSignUpPeriodTime() == 0 || world.worldSettings.getAllowSignupAfterStart())) {
+            if (world.worldSettings.getAnnounceSignup()) {
                 String message = world.worldSettings.getString(Setting.SignUpAnnouncement);
                 message = message.replace("<World>", world.name);
                 message = message.replace("<Player>", ((Player) sender).getName());
@@ -51,7 +51,7 @@ public class HuntCommand extends BaseCommand {
                 Util.Message(message, sender);
             }
 
-            world.Score.put(((Player) sender).getName(), 0);
+            world.Score.put(sender.getName(), 0);
         } else {
             Util.Message(world.worldSettings.getString(Setting.MessageTooLateSignUp), sender);
         }

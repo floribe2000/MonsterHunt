@@ -12,6 +12,7 @@ import java.sql.Statement;
 import java.util.LinkedHashMap;
 import java.util.logging.Level;
 
+import de.geistlande.monsterhunt.WorldSettings;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -182,10 +183,9 @@ public class InputOutput {
         LoadDefaults();
 
         for (String n : SettingsOld.globals.getString("EnabledWorlds").split(",")) {
-            MonsterHuntWorld mw = new MonsterHuntWorld(n);
+            MonsterHuntWorld mw = new MonsterHuntWorld(n, new WorldSettings());
             YamlConfiguration config = new YamlConfiguration();
             SettingsOld settings = new SettingsOld(config, new File("plugins" + File.separator + "MonsterHunt" + File.separator, n + ".yml"));
-            mw.worldSettings = settings;
 
             HuntWorldManager.worlds.put(n, mw);
         }
@@ -199,13 +199,10 @@ public class InputOutput {
         HuntZone.teleport = new Location(world, Double.parseDouble(temp[0]), Double.parseDouble(temp[1]), Double.parseDouble(temp[2]));
 
         //Create zone world
-        MonsterHuntWorld mw = new MonsterHuntWorld(world.getName());
+        MonsterHuntWorld mw = new MonsterHuntWorld(world.getName(), new WorldSettings());
         YamlConfiguration config = new YamlConfiguration();
         SettingsOld settings = new SettingsOld(config, new File("plugins" + File.separator + "MonsterHunt" + File.separator + "zone.yml"));
-        mw.worldSettings = settings;
-
-        HuntWorldManager.HuntZoneWorld = mw;
-
+        HuntWorldManager.worlds.put(mw.name, mw);
     }
 
     public static void LoadDefaults() {

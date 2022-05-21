@@ -64,11 +64,11 @@ public class MonsterHuntListener implements Listener {
             MonsterHuntWorld world = HuntWorldManager.getWorld(player.getWorld().getName());
 
             if (world == null || world.getWorld() == null) return;
-            if (world.worldSettings.getInt(Setting.DeathPenalty) == 0) return;
+            if (world.worldSettings.getDeathPenalty() == 0) return;
 
             if (world.state > 1 && world.Score.containsKey(player.getName())) {
                 double score = world.Score.get(player.getName()) + 0.00;
-                score = score - (score * world.worldSettings.getInt(Setting.DeathPenalty) / 100.00);
+                score = score - (score * world.worldSettings.getDeathPenalty() / 100.00);
                 world.Score.put(player.getName(), (int) Math.round(score));
                 Util.Message(world.worldSettings.getString(Setting.DeathMessage), player);
             }
