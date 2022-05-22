@@ -29,6 +29,7 @@ object Settings {
 
     fun save(configPath: String) {
         val configFile = File(configPath)
+        configFile.absoluteFile.parentFile.mkdirs()
         mapper.writeValue(configFile, config)
     }
 

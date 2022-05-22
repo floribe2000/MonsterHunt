@@ -5,14 +5,10 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.swing.Timer;
-
 import de.geistlande.monsterhunt.Settings;
 import de.geistlande.monsterhunt.WorldSettings;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.matejdro.bukkit.monsterhunt.commands.BaseCommand;
@@ -43,7 +39,7 @@ public class MonsterHunt extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        Settings.INSTANCE.load(getDataFolder().getAbsolutePath());
+        Settings.INSTANCE.load(getDataFolder().getAbsolutePath() + "/config.yml");
         initialize();
 
         InputOutput.PrepareDB();

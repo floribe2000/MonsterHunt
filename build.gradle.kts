@@ -42,6 +42,7 @@ spigot {
     name = "Monsterhunt"
     softDepends("Vault")
     version = "1.5.1"
+    apiVersion = "1.18"
     libraries = listOf(jacksonYaml, jacksonKotlin)
     commands {
         create("hunt") {
