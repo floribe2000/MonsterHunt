@@ -3,7 +3,6 @@ package com.matejdro.bukkit.monsterhunt;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.logging.Level;
-import java.util.random.RandomGenerator;
 
 import de.geistlande.monsterhunt.Localizer;
 import de.geistlande.monsterhunt.RewardElement;
@@ -14,6 +13,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -37,8 +37,7 @@ public class RewardManager {
 
         int score = Winners[0].get(Winners[0].keySet().toArray()[0]);
         if (score < world.worldSettings.getRewardSettings().getMinimumPointsPlace()) {
-            String message = world.worldSettings.getString(Setting.FinishMessageNotEnoughPoints);
-            message = message.replace("<World>", world.name);
+            String message = Localizer.INSTANCE.getString("hunt.finish.notEnoughPoints", world.name);
             Util.Broadcast(message);
             return;
 
@@ -52,7 +51,8 @@ public class RewardManager {
                 score = Winners[place].get(Winners[place].keySet().toArray()[0]);
                 Util.Debug(String.valueOf(score));
                 Util.Debug(String.valueOf(world.worldSettings.getPlaceInt(Setting.MinimumPointsPlace, place + 1)));
-                if (score < world.worldSettings.getPlaceInt(Setting.MinimumPointsPlace, place + 1)) Winners[place].clear();
+                if (score < world.worldSettings.getPlaceInt(Setting.MinimumPointsPlace, place + 1))
+                    Winners[place].clear();
                 for (String i : Winners[place].keySet()) {
                     RewardString = world.worldSettings.getPlaceString(Setting.RewardParametersPlace, place + 1);
                     if (RewardString.contains(";"))
@@ -65,7 +65,8 @@ public class RewardManager {
         //RewardEveryone
         if (!(!world.worldSettings.getRewardSettings().getEnableRewardEveryonePermission() && !world.worldSettings.getRewardSettings().getRewardEveryone())) {
             for (Entry i : world.Score.entrySet()) {
-                if (((Integer) i.getValue()) < world.worldSettings.getRewardSettings().getMinimumPointsEveryone()) continue;
+                if (((Integer) i.getValue()) < world.worldSettings.getRewardSettings().getMinimumPointsEveryone())
+                    continue;
                 Player player = plugin.getServer().getPlayer((String) i.getKey());
                 if (player == null) continue;
                 RewardString = world.worldSettings.getRewardSettings().getRewardParametersEveryone();
@@ -80,7 +81,6 @@ public class RewardManager {
         //Broadcast winner message
         Util.Debug("[MonterHunt][DEBUG - NEVEREND]Broadcasting Winners");
         String message;
-
 
 
         message = Localizer.INSTANCE.getString("hunt.finish.winners", world.name);
@@ -112,7 +112,6 @@ public class RewardManager {
         List<RewardGroup> allRewardGroups = world.worldSettings.getRewardSettings().getAvailableRewards();
 
 
-
         //String[] split = rewardString.split(",");
         Player player = plugin.getServer().getPlayer(playerstring);
         if (player == null) return;
@@ -124,7 +123,6 @@ public class RewardManager {
 
             //Parse block ID
             //String BlockIdString = i2.substring(0, i2.indexOf(" "));
-
 
 
             //short data;
@@ -142,13 +140,14 @@ public class RewardManager {
 
             int all = rewardGroupItemList.size();
 
-                for (int i = 0; i < all; ++i) {
-                    int weight = rewardGroupItemList.get(i).getStochasticWeight()
+            rewardGroupItemList.stream().map(RewardElement::getStochasticWeight).reduce(0, Integer::sum);
+            for (int i = 0; i < all; ++i) {
+                int weight = rewardGroupItemList.get(i).getStochasticWeight()
 
-                    if (weight >0){
+                if (weight > 0) {
 
-                    }
                 }
+            }
             if (BlockIdString.contains(":")) {
                 blockId = Integer.valueOf(BlockIdString.substring(0, rewardGroup.indexOf(":")));
                 data = Short.valueOf(BlockIdString.substring(rewardGroup.indexOf(":") + 1));
@@ -310,56 +309,22 @@ public class RewardManager {
     }
 
     //add item color by fabe
-    private static void addItemFix(Player players, int ID, int amount, short dur) {
-        if (players.getInventory().firstEmpty() == -1) {
-            players.getLocation().getWorld().dropItem(players.getLocation(), new ItemStack(ID, amount, dur));
-            return;
+    private static void addItemFix(Player player, Material material, int amount, short durability) {
+        var itemStack = new ItemStack(material, amount);
+        if (durability > 0 && itemStack.getItemMeta() instanceof Damageable damageable) {
+            damageable.setDamage(durability);
         }
-        if (players.getInventory().contains(ID) && (ID == 35 || ID == 351)) { // Wool or Dye
-            HashMap<Integer, ? extends ItemStack> invItems = players.getInventory()
-                .all(ID);
+        var overflowItems = player.getInventory().addItem(itemStack);
 
-            int restAmount = amount;
-            for (Map.Entry<Integer, ? extends ItemStack> entry : invItems.entrySet()) {
-
-                int index = entry.getKey();
-                ItemStack item = entry.getValue();
-                int stackAmount = item.getAmount();
-
-                // e.g. same wool in inventory => put in to stack
-                if (dur == item.getDurability()) {
-
-                    if (stackAmount < 64) {
-                        // Add to stack
-                        int canGiveAmount = 64 - stackAmount;
-                        int giveAmount;
-
-                        if (canGiveAmount >= restAmount) {
-                            giveAmount = restAmount;
-                            restAmount = 0;
-                        } else {
-                            giveAmount = canGiveAmount;
-                            restAmount = restAmount - giveAmount;
-                        }
-
-                        players.getInventory()
-                            .setItem(
-                                index,
-                                new ItemStack(ID, stackAmount
-                                    + giveAmount, dur));
-
-                    }
+        if (!overflowItems.isEmpty()) {
+            for (var item : overflowItems.values()) {
+                var world = player.getLocation().getWorld();
+                if (world != null) {
+                    world.dropItem(player.getLocation(), item);
+                } else {
+                    Util.Debug("Unable to give reward items to player " + player.getName());
                 }
             }
-            // If there is still a rest, add the rest to the inventory
-            if (restAmount > 0) {
-                int emptySlot = players.getInventory().firstEmpty();
-                players.getInventory().setItem(emptySlot,
-                    new ItemStack(ID, restAmount, dur));
-            }
-        } else {
-            // Standard usage of addItem
-            players.getInventory().addItem(new ItemStack(ID, amount, dur));
         }
     }
 
