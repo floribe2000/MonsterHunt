@@ -10,6 +10,7 @@ data class WorldSettings(
     val deathPenalty: Int = 30,
     val enableSignup: Boolean = true,
     val announceSignup: Boolean = true,
+    val announceLead: Boolean = true,
     val minimumPlayers: Int = 2,
     val startChance: Int = 100,
     val skipDays: Int = 0,
@@ -19,12 +20,14 @@ data class WorldSettings(
     val huntZoneMode: Boolean = false,
     val mobSettings: MobSettings = MobSettings(),
     val rewardSettings: RewardSettings = RewardSettings(),
-)
+) {
+    fun findMobPoints(name: String) = mobSettings.mobPoints.getOrDefault(name.lowercase(), 0)
+}
 
 data class MobSettings(
     val onlyCountMobsSpawnedOutside: Boolean = false,
-    val mobSpawnHeightLimit: Int = 0,
-    val onlyCountMobsSpawnedOutsideBlackList: Boolean = true,
+    val outsideHeightCheck: Int = 0,
+    val mobPoints: Map<String, Int> = mapOf(),
 )
 
 data class RewardSettings(

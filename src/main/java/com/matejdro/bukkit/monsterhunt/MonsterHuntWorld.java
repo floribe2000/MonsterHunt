@@ -33,8 +33,6 @@ public class MonsterHuntWorld {
 
     public ArrayList<Integer> properlySpawned = new ArrayList<>();
 
-    public ArrayList<Integer> blacklist = new ArrayList<>();
-
     public HashMap<Player, Location> tpLocations = new HashMap<>();
 
     public MonsterHuntWorld(String worldName, WorldSettings worldSettings) {

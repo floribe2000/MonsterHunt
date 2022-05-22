@@ -3,8 +3,10 @@ package com.matejdro.bukkit.monsterhunt;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.logging.Level;
+import java.util.random.RandomGenerator;
 
 import de.geistlande.monsterhunt.Localizer;
+import de.geistlande.monsterhunt.RewardElement;
 import de.geistlande.monsterhunt.RewardGroup;
 import net.milkbowl.vault.economy.Economy;
 
@@ -107,7 +109,7 @@ public class RewardManager {
     }
 
     private static void reward(String playerstring, MonsterHuntWorld world, int score) {
-        List<RewardGroup> rewardGroups = world.worldSettings.getRewardSettings().getAvailableRewards();
+        List<RewardGroup> allRewardGroups = world.worldSettings.getRewardSettings().getAvailableRewards();
 
 
 
@@ -115,8 +117,8 @@ public class RewardManager {
         Player player = plugin.getServer().getPlayer(playerstring);
         if (player == null) return;
         String items = "";
-        for (RewardGroup i2 : rewardGroups) {
-            Util.Debug(i2.getName()); //TODO hoffen, dass es im log sinn macht,
+        for (RewardGroup rewardGroup : allRewardGroups) {
+            Util.Debug(rewardGroup.getName()); //TODO hoffen, dass es im log sinn macht,
 
             //////
 
@@ -125,13 +127,31 @@ public class RewardManager {
 
 
 
-            short data;
+            //short data;
 
-            Material blockId;
+            //one from each revardGroup
+            // one item in the revardGroup at random
 
+            List<RewardElement> rewardGroupItemList = rewardGroup.getItems();
+
+            //TODO randmon funktion bauen.
+
+            Random random = new Random();
+
+            Material blockId = rewardGroup;
+
+            int all = rewardGroupItemList.size();
+
+                for (int i = 0; i < all; ++i) {
+                    int weight = rewardGroupItemList.get(i).getStochasticWeight()
+
+                    if (weight >0){
+
+                    }
+                }
             if (BlockIdString.contains(":")) {
-                blockId = Integer.valueOf(BlockIdString.substring(0, i2.indexOf(":")));
-                data = Short.valueOf(BlockIdString.substring(i2.indexOf(":") + 1));
+                blockId = Integer.valueOf(BlockIdString.substring(0, rewardGroup.indexOf(":")));
+                data = Short.valueOf(BlockIdString.substring(rewardGroup.indexOf(":") + 1));
             } else {
                 blockId = Integer.valueOf(BlockIdString);
                 data = 0;
@@ -139,7 +159,7 @@ public class RewardManager {
 
 
             //Parse block amount
-            String rv = i2.substring(i2.indexOf(" ") + 1);
+            String rv = rewardGroup.substring(rewardGroup.indexOf(" ") + 1);
             boolean RelativeReward = false;
             if (rv.startsWith("R")) {
                 RelativeReward = true;
