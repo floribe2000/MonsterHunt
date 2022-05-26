@@ -15,6 +15,9 @@ repositories {
     mavenCentral()
 }
 
+val exposedVersion: String by project
+val koinVersion: String by project
+
 val jacksonVersion = "2.13.3"
 val jacksonYaml = "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:$jacksonVersion"
 val jacksonKotlin = "com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion"
@@ -26,6 +29,12 @@ dependencies {
     }
     implementation(jacksonYaml)
     implementation(jacksonKotlin)
+    implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
+    implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")
+    implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
+    implementation("mysql:mysql-connector-java:8.0.29")
+    implementation("org.xerial:sqlite-jdbc:3.36.0.3")
+
     testImplementation(kotlin("test-junit5"))
     testImplementation(spigot("1.18.2-R0.1-SNAPSHOT"))
 }
@@ -44,6 +53,7 @@ spigot {
     version = "1.5.1"
     apiVersion = "1.18"
     libraries = listOf(jacksonYaml, jacksonKotlin)
+    authors("floribe2000", "doctor_albertio")
     commands {
         create("hunt") {
             description = "Sign up for the hunt"

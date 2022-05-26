@@ -37,16 +37,16 @@ public class HuntStatusCommand extends BaseCommand {
 
         if (world.state == 0) {
 
-            if (world.lastScore.containsKey(player.getName()))
-                Util.Message(Localizer.INSTANCE.getString("personal.status.lastScore", world.lastScore.get(player.getName())), player);
+            if (world.lastScore.containsKey(player.getUniqueId()))
+                Util.Message(Localizer.INSTANCE.getString("personal.status.lastScore", world.lastScore.get(player.getUniqueId())), player);
             else
                 Util.Message(Localizer.INSTANCE.getString("personal.status.notInvolvedLastHunt"), player);
         } else if (world.state == 2) {
-            if (world.Score.containsKey(player.getName())) {
-                if (world.Score.get(player.getName()) == 0)
+            if (world.Score.containsKey(player.getUniqueId())) {
+                if (world.Score.get(player.getUniqueId()) == 0)
                     Util.Message(Localizer.INSTANCE.getString("personal.status.noKills"), player);
                 else
-                    Util.Message(Localizer.INSTANCE.getString("personal.status.score", world.Score.get(player.getName())), player);
+                    Util.Message(Localizer.INSTANCE.getString("personal.status.score", world.Score.get(player.getUniqueId())), player);
             }
             if (world.worldSettings.getTellTime() && !world.manual) {
                 int timediff = world.worldSettings.getEndTime() - world.worldSettings.getStartTime();

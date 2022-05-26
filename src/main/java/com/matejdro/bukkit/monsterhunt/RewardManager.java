@@ -3,10 +3,9 @@ package com.matejdro.bukkit.monsterhunt;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
-import de.geistlande.monsterhunt.Localizer;
-import de.geistlande.monsterhunt.RewardElement;
-import de.geistlande.monsterhunt.RewardGroup;
+import de.geistlande.monsterhunt.*;
 import net.milkbowl.vault.economy.Economy;
 
 import org.bukkit.Bukkit;
@@ -45,22 +44,22 @@ public class RewardManager {
         String RewardString;
 
         //Normal reward
-        if (world.worldSettings.getRewardSettings().getEnabled()) {
-            for (int place = 0; place < num; place++) {
-                if (Winners[place].size() < 1) continue;
-                score = Winners[place].get(Winners[place].keySet().toArray()[0]);
-                Util.Debug(String.valueOf(score));
-                Util.Debug(String.valueOf(world.worldSettings.getPlaceInt(Setting.MinimumPointsPlace, place + 1)));
-                if (score < world.worldSettings.getPlaceInt(Setting.MinimumPointsPlace, place + 1))
-                    Winners[place].clear();
-                for (String i : Winners[place].keySet()) {
-                    RewardString = world.worldSettings.getPlaceString(Setting.RewardParametersPlace, place + 1);
-                    if (RewardString.contains(";"))
-                        RewardString = PickRandom(RewardString);
-                    reward(i, RewardString, world, score);
-                }
-            }
-        }
+//        if (world.worldSettings.getRewardSettings().getEnabled()) {
+//            for (int place = 0; place < num; place++) {
+//                if (Winners[place].size() < 1) continue;
+//                score = Winners[place].get(Winners[place].keySet().toArray()[0]);
+//                Util.Debug(String.valueOf(score));
+//                Util.Debug(String.valueOf(world.worldSettings.getPlaceInt(Setting.MinimumPointsPlace, place + 1)));
+//                if (score < world.worldSettings.getPlaceInt(Setting.MinimumPointsPlace, place + 1))
+//                    Winners[place].clear();
+//                for (String i : Winners[place].keySet()) {
+//                    RewardString = world.worldSettings.getPlaceString(Setting.RewardParametersPlace, place + 1);
+//                    if (RewardString.contains(";"))
+//                        RewardString = PickRandom(RewardString);
+//                    reward(i, RewardString, world, score);
+//                }
+//            }
+//        }
 
         //RewardEveryone
         if (!(!world.worldSettings.getRewardSettings().getEnableRewardEveryonePermission() && !world.worldSettings.getRewardSettings().getRewardEveryone())) {
@@ -73,7 +72,7 @@ public class RewardManager {
                 if (RewardString.contains(";"))
                     RewardString = PickRandom(RewardString);
                 if (world.worldSettings.getRewardSettings().getRewardEveryone() || (Util.permission(player, "monsterhunt.rewardeverytime", PermissionDefault.FALSE) && world.worldSettings.getRewardSettings().getEnableRewardEveryonePermission())) {
-                    reward((String) i.getKey(), RewardString, world, (Integer) i.getValue());
+//                    reward((String) i.getKey(), RewardString, world, (Integer) i.getValue());
                 }
             }
         }
@@ -136,26 +135,58 @@ public class RewardManager {
 
             Random random = new Random();
 
-            Material blockId = rewardGroup;
+            //the different kinds of rewards.
+            Material blockId = null;
+             double moneyReward = 0;
+
+             int rewardAmount = 0;
 
             int all = rewardGroupItemList.size();
 
-            rewardGroupItemList.stream().map(RewardElement::getStochasticWeight).reduce(0, Integer::sum);
-            for (int i = 0; i < all; ++i) {
-                int weight = rewardGroupItemList.get(i).getStochasticWeight()
+            int totalWeight = rewardGroupItemList.stream().map(RewardElement::getStochasticWeight).reduce(0, Integer::sum);
+
+            int chosenReward = (random.nextInt() % totalWeight);
+
+
+            boolean notFound = true; //TODO mit break ersetzen
+            
+            int allreadyCheckedItems = 0;
+
+            for (int i = 0; i < all && notFound; ++i) {
+
+                RewardElement element = rewardGroupItemList.get(i);
+
+                int weight = element.getStochasticWeight();
 
                 if (weight > 0) {
 
-                }
-            }
-            if (BlockIdString.contains(":")) {
-                blockId = Integer.valueOf(BlockIdString.substring(0, rewardGroup.indexOf(":")));
-                data = Short.valueOf(BlockIdString.substring(rewardGroup.indexOf(":") + 1));
-            } else {
-                blockId = Integer.valueOf(BlockIdString);
-                data = 0;
-            }
+                    allreadyCheckedItems += weight;
 
+                    if(chosenReward < allreadyCheckedItems){
+                        notFound = false;
+                        if( rewardGroupItemList.get(i) instanceof MaterialReward materialReward){
+                            blockId = materialReward.getMaterial();
+                            rewardAmount = materialReward.getAmount();
+                        } else {
+                            moneyReward = ((MoneyReward) rewardGroupItemList.get(i)).getAmount();
+                        } //else ( rewardGroupItemList.get(i) instanceof MaterialReward)
+
+                    } else { // (chosenReward < allreadyCheckedItems)
+                        // todo, muss da was rein, hab es vergessen.
+                    }// else (chosenReward < allreadyCheckedItems)
+                } // (weight > 0)
+            } //for
+
+// i think we dont need this because material doh
+//
+//            if (BlockIdString.contains(":")) {
+//                blockId = Integer.valueOf(BlockIdString.substring(0, rewardGroup.indexOf(":")));
+//                data = Short.valueOf(BlockIdString.substring(rewardGroup.indexOf(":") + 1));
+//            } else {
+//                blockId = Integer.valueOf(BlockIdString);
+//                data = 0;
+//            }
+//
 
             //Parse block amount
             String rv = rewardGroup.substring(rewardGroup.indexOf(" ") + 1);
@@ -263,27 +294,47 @@ public class RewardManager {
     }
 
     private static HashMap<String, Integer>[] getWinners(MonsterHuntWorld world) {
-        HashMap<String, Integer> scores = new HashMap<>(world.Score);
+        HashMap<UUID, Integer> scores = new HashMap<>(world.Score);
         int num = world.worldSettings.getRewardSettings().getNumberOfWinners();
         HashMap<String, Integer>[] winners = new HashMap[num];
-        for (int place = 0; place < num; place++) {
-            winners[place] = new HashMap<>();
-            int tmp = 0;
-            for (String i : scores.keySet()) {
-                int value = scores.get(i);
-                if (value > tmp) {
-                    winners[place].clear();
-                    winners[place].put(i, value);
-                    tmp = value;
-                } else if (value == tmp) {
-                    winners[place].put(i, value);
-                }
-            }
 
-            for (String i : winners[place].keySet()) {
-                scores.remove(i);
+        var grouping = scores.entrySet().stream().collect(Collectors.groupingBy(Entry::getValue));
+        var topGroups = grouping.entrySet().stream()
+            .sorted((o1, o2) -> o2.getKey().compareTo(o1.getKey()))
+            .limit(num)
+            .toList();
+        int currentPlace = 0;
+        for (var group : topGroups) {
+            var players = group.getValue().stream()
+                .map(Entry::getKey)
+                .map(uuid -> Optional.ofNullable(Bukkit.getOfflinePlayer(uuid).getName()).orElse("unknown"))
+                .toList();
+            var placeMap = new HashMap<String, Integer>();
+            for (var player : players) {
+                placeMap.put(player, group.getKey());
             }
+            winners[currentPlace] = placeMap;
+            currentPlace++;
         }
+//        for (int place = 0; place < num; place++) {
+//            winners[place] = new HashMap<>();
+//            int tmp = 0;
+//            for (UUID i : scores.keySet()) {
+//                int value = scores.get(i);
+//                var playerName = Bukkit.getOfflinePlayer(i).getName();
+//                if (value > tmp) {
+//                    winners[place].clear();
+//                    winners[place].put(playerName, value);
+//                    tmp = value;
+//                } else if (value == tmp) {
+//                    winners[place].put(playerName, value);
+//                }
+//            }
+//
+//            for (String i : winners[place].keySet()) {
+//                scores.remove(i);
+//            }
+//        }
 
         return winners;
     }

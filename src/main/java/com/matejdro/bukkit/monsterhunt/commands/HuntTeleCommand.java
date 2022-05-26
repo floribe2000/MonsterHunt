@@ -32,7 +32,7 @@ public class HuntTeleCommand extends BaseCommand {
         if (world.state == 0 && permission) {
             Util.Message(Localizer.INSTANCE.getString("hunt.zone.tp.noHunt"), player);
             return true;
-        } else if (world.Score.containsKey(player.getName()) && world.worldSettings.getEnableSignup() && permission) {
+        } else if (world.Score.containsKey(player.getUniqueId()) && world.worldSettings.getEnableSignup() && permission) {
             Util.Message(Localizer.INSTANCE.getString("hunt.zone.tp.noSignup"), player);
             return true;
         }

@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 
 import de.geistlande.monsterhunt.Settings;
 import de.geistlande.monsterhunt.WorldSettings;
+import de.geistlande.monsterhunt.db.DbManager;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -20,6 +21,7 @@ import com.matejdro.bukkit.monsterhunt.commands.HuntStopCommand;
 import com.matejdro.bukkit.monsterhunt.commands.HuntTeleCommand;
 import com.matejdro.bukkit.monsterhunt.commands.HuntZoneCommand;
 import com.matejdro.bukkit.monsterhunt.listeners.MonsterHuntListener;
+import org.jetbrains.annotations.NotNull;
 
 public class MonsterHunt extends JavaPlugin {
     public static Logger log = Logger.getLogger("Minecraft");
@@ -40,9 +42,8 @@ public class MonsterHunt extends JavaPlugin {
     @Override
     public void onEnable() {
         Settings.INSTANCE.load(getDataFolder().getAbsolutePath() + "/config.yml");
+        DbManager.INSTANCE.initialize();
         initialize();
-
-        InputOutput.PrepareDB();
 
 
         getServer().getPluginManager().registerEvents(entityListener, this);
@@ -53,7 +54,7 @@ public class MonsterHunt extends JavaPlugin {
         commands.put("hunt", new HuntCommand());
         commands.put("huntscore", new HuntScoreCommand());
         commands.put("huntstatus", new HuntStatusCommand());
-        commands.put("huntzone", new HuntZoneCommand());
+//        commands.put("huntzone", new HuntZoneCommand());
         commands.put("hunttele", new HuntTeleCommand());
 
         HuntWorldManager.timer();
@@ -69,7 +70,7 @@ public class MonsterHunt extends JavaPlugin {
         }
     }
 
-    public boolean onCommand(CommandSender sender, Command command, String commandLabel, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, Command command, @NotNull String commandLabel, @NotNull String[] args) {
         BaseCommand cmd = commands.get(command.getName().toLowerCase());
         if (cmd != null) return cmd.execute(sender, args);
         return false;

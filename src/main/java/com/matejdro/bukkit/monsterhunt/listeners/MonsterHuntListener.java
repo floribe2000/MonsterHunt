@@ -37,10 +37,10 @@ public class MonsterHuntListener implements Listener {
             if (world == null || world.getWorld() == null) return;
             if (world.worldSettings.getDeathPenalty() == 0) return;
 
-            if (world.state > 1 && world.Score.containsKey(player.getName())) {
-                double score = world.Score.get(player.getName()) + 0.00;
+            if (world.state > 1 && world.Score.containsKey(player.getUniqueId())) {
+                double score = world.Score.get(player.getUniqueId()) + 0.00;
                 score = score - (score * world.worldSettings.getDeathPenalty() / 100.00);
-                world.Score.put(player.getName(), (int) Math.round(score));
+                world.Score.put(player.getUniqueId(), (int) Math.round(score));
                 Util.Message(Localizer.INSTANCE.getString("personal.death", world.worldSettings.getDeathPenalty()), player);
             }
         }
@@ -105,9 +105,9 @@ public class MonsterHuntListener implements Listener {
 
         if (points < 1) return;
 
-        if (!world.Score.containsKey(player.getName()) && !world.worldSettings.getEnableSignup())
-            world.Score.put(player.getName(), 0);
-        if (world.Score.containsKey(player.getName())) {
+        if (!world.Score.containsKey(player.getUniqueId()) && !world.worldSettings.getEnableSignup())
+            world.Score.put(player.getUniqueId(), 0);
+        if (world.Score.containsKey(player.getUniqueId())) {
             // TODO: add blacklist again?
             if (world.worldSettings.getMobSettings().getOnlyCountMobsSpawnedOutside() && !world.properlySpawned.contains(monster.getEntityId())) {
                 String message = Localizer.INSTANCE.getString("personal.kill.inside");
@@ -115,17 +115,17 @@ public class MonsterHuntListener implements Listener {
                 return;
 
             }
-            int newScore = world.Score.get(player.getName()) + points;
+            int newScore = world.Score.get(player.getUniqueId()) + points;
 
             if (world.worldSettings.getAnnounceLead()) {
                 var currentLeader = world.Score.entrySet().stream().max(Entry.comparingByValue()).orElse(null);
-                if (currentLeader == null || !currentLeader.getKey().equalsIgnoreCase(player.getName())) {
+                if (currentLeader == null || !currentLeader.getKey().equals(player.getUniqueId())) {
                     String message = Localizer.INSTANCE.getString("hunt.leadChanged", player.getName(), newScore, world.name);
                     Util.Broadcast(message);
                 }
             }
 
-            world.Score.put(player.getName(), newScore);
+            world.Score.put(player.getUniqueId(), newScore);
             world.properlySpawned.remove(monster.getEntityId());
 
             String messageKey = "personal.mobKilled";

@@ -21,6 +21,7 @@ import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;
 
+@Deprecated
 public class InputOutput {
     private static Connection connection;
 
@@ -42,7 +43,7 @@ public class InputOutput {
             if (SettingsOld.globals.getBoolean("Database.UseMySQL", false)) {
                 Class.forName("com.mysql.jdbc.Driver");
                 var dbSettings = Settings.INSTANCE.getConfig().getDbSettings();
-                Connection ret = DriverManager.getConnection(dbSettings.getConnectionString(), dbSettings.getDbUser(), dbSettings.getDbPassword());
+                Connection ret = DriverManager.getConnection(dbSettings.getSqlHostName(), dbSettings.getDbUser(), dbSettings.getDbPassword());
                 ret.setAutoCommit(false);
                 return ret;
             } else {

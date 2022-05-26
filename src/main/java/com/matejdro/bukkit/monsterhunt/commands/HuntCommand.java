@@ -6,7 +6,6 @@ import org.bukkit.entity.Player;
 
 import com.matejdro.bukkit.monsterhunt.HuntWorldManager;
 import com.matejdro.bukkit.monsterhunt.MonsterHuntWorld;
-import com.matejdro.bukkit.monsterhunt.Setting;
 import com.matejdro.bukkit.monsterhunt.Util;
 
 public class HuntCommand extends BaseCommand {
@@ -21,7 +20,7 @@ public class HuntCommand extends BaseCommand {
     public Boolean run(CommandSender sender, String[] args) {
         MonsterHuntWorld world = HuntWorldManager.getWorld(((Player) sender).getWorld().getName());
         if (world == null || world.getWorld() == null) return true;
-        if (world.Score.containsKey(((Player) sender).getName())) {
+        if (world.Score.containsKey(((Player) sender).getUniqueId())) {
             Util.Message(Localizer.INSTANCE.getString("personal.signup.error.duplicate"), sender);
             return true;
         }
@@ -35,7 +34,7 @@ public class HuntCommand extends BaseCommand {
                 Util.Message(message, sender);
             }
 
-            world.Score.put(sender.getName(), 0);
+            world.Score.put(((Player) sender).getUniqueId(), 0);
 
         } else if (world.state == 2 && (world.getSignUpPeriodTime() == 0 || world.worldSettings.getAllowSignupAfterStart())) {
             if (world.worldSettings.getAnnounceSignup()) {
@@ -46,7 +45,7 @@ public class HuntCommand extends BaseCommand {
                 Util.Message(message, sender);
             }
 
-            world.Score.put(sender.getName(), 0);
+            world.Score.put(((Player) sender).getUniqueId(), 0);
         } else {
             Util.Message(Localizer.INSTANCE.getString("personal.signup.error.late"), sender);
         }

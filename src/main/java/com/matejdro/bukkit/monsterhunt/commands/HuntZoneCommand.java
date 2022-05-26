@@ -5,6 +5,7 @@ import org.bukkit.entity.Player;
 
 import com.matejdro.bukkit.monsterhunt.HuntZoneCreation;
 
+// TODO: fix this feature
 public class HuntZoneCommand extends BaseCommand {
 
     public HuntZoneCommand() {

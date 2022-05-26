@@ -8,6 +8,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+// TODO : Fix this feature
 public class HuntZoneCreation {
     public static HashMap<String, CreationPlayer> players = new HashMap<>();
 
@@ -57,7 +58,7 @@ public class HuntZoneCreation {
         HuntZone.corner1 = cr.corner1;
         HuntZone.corner2 = cr.corner2;
         HuntZone.teleport = cr.teleloc;
-        InputOutput.saveZone();
+//        InputOutput.saveZone();
 
         Util.Message("Hunt Zone set successfully!", player);
 

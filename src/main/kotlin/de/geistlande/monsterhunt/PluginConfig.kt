@@ -14,8 +14,11 @@ data class PluginConfig(
 )
 
 data class DatabaseSettings(
-    val useDb: Boolean = false,
-    val connectionString: String = "",
+    val useMySql: Boolean = true,
+    val sqlHostName: String = "db.example.local",
+    val sqlPort: Int = 3306,
+    val databaseName: String = "minecraft",
+    val fileName: String = "plugins/MonsterHunt/MonsterHunt.sqlite",
     val dbUser: String = "",
     val dbPassword: String = "",
 )

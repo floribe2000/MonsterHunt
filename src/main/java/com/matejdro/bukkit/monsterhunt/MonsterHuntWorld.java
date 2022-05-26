@@ -4,10 +4,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Random;
+import java.util.UUID;
 import java.util.logging.Level;
 
 import de.geistlande.monsterhunt.Localizer;
 import de.geistlande.monsterhunt.WorldSettings;
+import de.geistlande.monsterhunt.db.DbManager;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -27,9 +30,9 @@ public class MonsterHuntWorld {
 
     public WorldSettings worldSettings;
 
-    public HashMap<String, Integer> Score = new HashMap<>();
+    public HashMap<UUID, Integer> Score = new HashMap<>();
 
-    public HashMap<String, Integer> lastScore = new HashMap<>();
+    public HashMap<UUID, Integer> lastScore = new HashMap<>();
 
     public ArrayList<Integer> properlySpawned = new ArrayList<>();
 
@@ -90,13 +93,12 @@ public class MonsterHuntWorld {
             player.teleport(e.getValue());
         }
         state = 0;
-        for (String i : Score.keySet()) {
-            Integer hs = InputOutput.getHighScore(i);
-            if (hs == null) hs = 0;
-            int score = Score.get(i);
+        for (UUID playerUuid : Score.keySet()) {
+            int hs = DbManager.INSTANCE.getPlayerHighscore(playerUuid);
+            int score = Score.get(playerUuid);
             if (score > hs) {
-                InputOutput.UpdateHighScore(i, score);
-                Player player = MonsterHunt.instance.getServer().getPlayer(i);
+                DbManager.INSTANCE.updateHighscore(Bukkit.getOfflinePlayer(playerUuid), score);
+                Player player = MonsterHunt.instance.getServer().getPlayer(playerUuid);
                 if (player != null) {
                     String message = Localizer.INSTANCE.getString("personal.newHighScore", score);
                     Util.Message(message, player);
