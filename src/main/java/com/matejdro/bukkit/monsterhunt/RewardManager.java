@@ -167,8 +167,19 @@ public class RewardManager {
                         if( rewardGroupItemList.get(i) instanceof MaterialReward materialReward){
                             blockId = materialReward.getMaterial();
                             rewardAmount = materialReward.getAmount();
+
+
+
+                            addItemFix(player, blockId, rewardAmount); //TODO here we could use the durability
+                            if (rewardAmount > 0)
+                                items += String.valueOf(rewardAmount) + "x " + getMaterialName(Material.getMaterial(blockId.name())) + ", ";
+
                         } else {
                             moneyReward = ((MoneyReward) rewardGroupItemList.get(i)).getAmount();
+
+                            String item = iConomyReward(playerstring, moneyReward);
+                            if (moneyReward > 0) items += item + ", ";
+
                         } //else ( rewardGroupItemList.get(i) instanceof MaterialReward)
 
                     } else { // (chosenReward < allreadyCheckedItems)
@@ -189,8 +200,8 @@ public class RewardManager {
 //
 
             //Parse block amount
-            String rv = rewardGroup.substring(rewardGroup.indexOf(" ") + 1);
-            boolean RelativeReward = false;
+         //   String rv = rewardGroup.substring(rewardGroup.indexOf(" ") + 1);
+          /*  boolean RelativeReward = false;
             if (rv.startsWith("R")) {
                 RelativeReward = true;
                 rv = rv.substring(1);
@@ -214,8 +225,9 @@ public class RewardManager {
             if (RelativeReward)
                 number *= score;
             int amount = (int) Math.round(number);
-
+*/
             //give reward
+            /*
             if (blockId == 0) {
                 String item = iConomyReward(playerstring, amount);
                 if (amount > 0) items += item + ", ";
@@ -226,6 +238,8 @@ public class RewardManager {
                     items += String.valueOf(amount) + "x " + getMaterialName(Material.getMaterial(blockId)) + ", ";
                 //plugin.getServer().getPlayer(i).giveItem(BlockId,amount);
             }
+
+             */
         }
         if (items.trim() == "") return;
         items = items.substring(0, items.length() - 2);
@@ -233,7 +247,7 @@ public class RewardManager {
         Util.Message(message, player);
     }
 
-    private static String iConomyReward(String player, int number) {
+    private static String iConomyReward(String player, double number) {
         Plugin test = plugin.getServer().getPluginManager().getPlugin("Vault");
         if (test != null) {
             if (!setupEconomy()) {
@@ -360,11 +374,11 @@ public class RewardManager {
     }
 
     //add item color by fabe
-    private static void addItemFix(Player player, Material material, int amount, short durability) {
+    private static void addItemFix(Player player, Material material, int amount/*, short durability*/) {
         var itemStack = new ItemStack(material, amount);
-        if (durability > 0 && itemStack.getItemMeta() instanceof Damageable damageable) {
-            damageable.setDamage(durability);
-        }
+    //    if (durability > 0 && itemStack.getItemMeta() instanceof Damageable damageable) {
+    //        damageable.setDamage(durability);
+    //    }
         var overflowItems = player.getInventory().addItem(itemStack);
 
         if (!overflowItems.isEmpty()) {
